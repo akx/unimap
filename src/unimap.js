@@ -19,7 +19,7 @@ var CharRow = React.createClass({
                 <span className="ch">{String.fromCharCode(c)}</span>
                 <span className="ch popup">{String.fromCharCode(c)}</span>
             </td>
-            <td>{"0x" + c.toString(16)}</td>
+            <td>{"U+" + c.toString(16).toUpperCase()}</td>
             <td>{getName(c)}</td>
             <td>{Blocks.get(c)}</td>
             <td>{Scripts.get(c)}</td>
@@ -52,11 +52,11 @@ var AppComponent = React.createClass({
     },
     enqueueSearchUpdate: function() {
         if(!this.delayedSearchUpdate) {
-            this.delayedSearchUpdate = debounce(this.updateSearch, 250);
+            this.delayedSearchUpdate = debounce(this.updateSearch, 150);
         }
         this.delayedSearchUpdate();
     },
-    updateSearch: function() {
+    getExtendedSearchMatches: function(search) {
         var criteria = [];
         if(this.state.script) {
             var script = this.state.script;
@@ -66,20 +66,35 @@ var AppComponent = React.createClass({
             var block = this.state.block;
             criteria.push(function(c) { return Blocks.get(c) == block; });
         }
-        var search = trim(this.state.search || "");
-        if(search && search.length >= 3) {
-            search = search.toUpperCase();
-            criteria.push(function(c) {
-                return getName(c).indexOf(search) > -1;
-            });
+
+        if(search) {
+            if(search.length >= 3) {
+                search = search.toUpperCase();
+                criteria.push(function(c) {
+                    return getName(c).indexOf(search) > -1;
+                });
+            } else {
+                return [search.charCodeAt(0)];
+            }
         }
         var matches = [];
-        var t0 = performance.now();
         if(criteria) {
             for(var c = 0; c < 0xF000; c++) {
                 if(all(criteria, (pred) => pred(c))) matches.push(c);
                 if(matches.length >= 1000) break;
             }
+        }
+        return matches;
+    },
+    updateSearch: function() {
+        var t0 = performance.now();
+        var search = trim(this.state.search || ""), m;
+        var matches = [];
+        if((m=(/^(u\+*|0?x)([0-9a-f]+)$/i).exec(search))) {
+            console.log(m);
+            matches = [parseInt(m[2], 16)];
+        } else {
+            matches = this.getExtendedSearchMatches(search);
         }
         var t1 = performance.now();
 

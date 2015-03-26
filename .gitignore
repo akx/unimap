@@ -29,5 +29,4 @@ node_modules
 .lock-wscript
 
 # Final build
-/unimap.html
-/unimap.js
+/unimap.*
