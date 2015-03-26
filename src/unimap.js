@@ -1,5 +1,5 @@
-require("!file?name=unimap.html!./unimap.html");
-require("!style!css!autoprefixer!less!./unimap.less");
+var html = require("!file?name=unimap.html!./unimap.html");
+var style = require("!style!css!autoprefixer!less!./unimap.less");
 var React = require("react/addons");
 var Blocks = require("!unicode-blocks!./Blocks.txt");
 var Scripts = require("!unicode-blocks!./Scripts.txt");
