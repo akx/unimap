@@ -6,7 +6,7 @@ module.exports = {
         ]
     },
     output: {
-        path: "build",
+        path: ".",
         filename: "unimap.js"
     },
     resolve: {
