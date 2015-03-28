@@ -1,0 +1,71 @@
+var uni = require("./uni");
+
+function charRow(c) {
+    var aliases = uni.getAliases(c).map((alias) => <div className="alias">{alias}</div>);
+    return (<tr key={c}>
+        <td>
+            <span className="ch">{String.fromCharCode(c)}</span>
+            <span className="ch popup">{String.fromCharCode(c)}</span>
+        </td>
+        <td>{"U+" + c.toString(16).toUpperCase()}</td>
+        <td>
+            {uni.getName(c)}
+            {aliases}
+        </td>
+        <td>{uni.blocks.get(c)}</td>
+        <td>{uni.scripts.get(c)}</td>
+    </tr>);
+}
+
+
+function charTable(ctrl) {
+    return (<table>
+        <thead>
+            <tr>
+                <th>Character</th>
+                <th>Codepoint</th>
+                <th>Name</th>
+                <th>Block</th>
+                <th>Script</th>
+            </tr>
+        </thead>
+        <tbody>
+            {ctrl.matches().map(charRow)}
+        </tbody>
+    </table>);
+};
+
+
+function getOptions(list) {
+    var options = list.sort().map((name) => <option value={name} key={name}>{name}</option>);
+    return [<option value="" key=""></option>].concat(options);
+}
+
+module.exports = function(ctrl) {
+    return <div id="app">
+        <div id="search">
+            <form>
+                <div>
+                    <input placeholder="Name or Codepoint" value={ctrl.search()}
+                        oninput={ctrl.changeSearchState('search')}
+                        onchange={ctrl.changeSearchState('search')}
+                    />
+                </div>
+                <div>
+                    <label>Unicode Block</label>
+                    <select value={ctrl.block()} onchange={ctrl.changeSearchState('block')}>{getOptions(uni.blocks.list)}</select>
+                </div>
+                <div>
+                    <label>Script</label>
+                    <select value={ctrl.script()} onchange={ctrl.changeSearchState('script')}>{getOptions(uni.scripts.list)}</select>
+                </div>
+                <div>
+                    Search time: {ctrl.searchTime()} ms for {ctrl.matches().length} results
+                </div>
+            </form>
+        </div>
+        <div id="results">
+            {charTable(ctrl)}
+        </div>
+    </div>
+};
